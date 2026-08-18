@@ -7,18 +7,49 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    container:
-      image: kivy/buildozer
+    runs-on: ubuntu-22.04
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Initialize Buildozer Spec
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
       run: |
-        buildozer init
-        sed -i 's/requirements = python3,kivy/requirements = python3,kivy/g' buildozer.spec
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          git \
+          ffmpeg \
+          libsdl2-dev \
+          libsdl2-image-dev \
+          libsdl2-mixin-dev \
+          libsdl2-ttf-dev \
+          libportmidi-dev \
+          libswscale-dev \
+          libavformat-dev \
+          libavcodec-dev \
+          zlib1g-dev \
+          openjdk-17-jdk \
+          unzip \
+          zip \
+          ccache
+
+    - name: Install Buildozer & Cython
+      run: |
+        pip install --upgrade pip
+        pip install cython==0.29.33
+        pip install buildozer
+
+    - name: Create buildozer.spec if missing
+      run: |
+        if [ ! -f buildozer.spec ]; then
+          buildozer init
+        fi
 
     - name: Build APK
       run: |
@@ -27,5 +58,6 @@ jobs:
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: app-debug-apk
+        name: app-debug
         path: bin/*.apk
+        
