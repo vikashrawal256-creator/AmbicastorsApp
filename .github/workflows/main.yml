@@ -51,9 +51,9 @@ jobs:
           buildozer init
         fi
 
-    - name: Build APK
+    - name: Build APK with Auto Accept Licenses
       run: |
-        buildozer -v android debug
+        yes | buildozer -v android debug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
